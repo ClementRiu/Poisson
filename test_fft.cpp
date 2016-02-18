@@ -5,21 +5,21 @@ const int W=8, H=2; // Dimensions du signal 2D
 const int N=W*H;    // Dimensions du signal 1D
 
 // Affichage d'un tableau de complexes.
-void print(const std::complex<float> f[], int n) {
+void print(const complex<float> f[], int n) {
     for(int i=0; i<n; i++)
-        std::cout << f[i] << " ";
-    std::cout << std::endl;
+        cout << f[i] << " ";
+    cout << endl;
 }
 
 // Initialisation du tableau f de taille n.
-void init(std::complex<float> f[], int n) {
+void init(complex<float> f[], int n) {
     for(int i=0; i<n; i++)
         f[i]=n-i;
 }
 
 // Test FFT. 
 int main() {
-    std::complex<float> f[N], g[N];
+    complex<float> f[N], g[N];
 
     init(f,N);
     print(f, N);
@@ -29,7 +29,7 @@ int main() {
         g[i] = dft(f, N, i);
     print(g, N);
 
-    std::cout << "-- 1D --" << std::endl;
+    cout << "-- 1D --" << endl;
 
     // FFT. Comparez avec g.
     fft(f, N);
@@ -39,7 +39,7 @@ int main() {
     ifft(f, N);
     print(f, N);
 
-    std::cout << "-- 2D --" << std::endl;
+    cout << "-- 2D --" << endl;
     init(f, N);
 
     // FFT.

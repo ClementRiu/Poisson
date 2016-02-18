@@ -1,12 +1,14 @@
 #pragma once
 
+#include <iostream>
 #include <complex>
+using namespace std;
 
-std::complex<float> dft(const std::complex<float> f[], int n, int k,
+complex<float> dft(const complex<float> f[], int n, int k,
                         float s=-1.0f);
 
-void  fft(std::complex<float> f[], int n);
-void ifft(std::complex<float> f[], int n);
+void  fft(complex<float> f[], int n);
+void ifft(complex<float> f[], int n);
 
-void  fft2(std::complex<float> f[], int w, int h);
-void ifft2(std::complex<float> f[], int w, int h);
+void  fft2(complex<float> f[], int w, int h);
+void ifft2(complex<float> f[], int w, int h);
