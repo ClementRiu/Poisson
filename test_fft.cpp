@@ -1,32 +1,35 @@
 #include "fft.h"
 #include <iostream>
 
-const int W=8, H=2; // Dimensions du signal 2D
-const int N=W*H;    // Dimensions du signal 1D
+const int W = 8, H = 2; // Dimensions du signal 2D
+const int N = W * H;    // Dimensions du signal 1D
 
 // Affichage d'un tableau de complexes.
 void print(const complex<float> f[], int n) {
-    for(int i=0; i<n; i++)
+    for (int i = 0; i < n; i++)
         cout << f[i] << " ";
     cout << endl;
 }
 
 // Initialisation du tableau f de taille n.
 void init(complex<float> f[], int n) {
-    for(int i=0; i<n; i++)
-        f[i]=n-i;
+    for (int i = 0; i < n; i++)
+        f[i] = n - i;
 }
 
 // Test FFT. 
 int main() {
     complex<float> f[N], g[N];
 
-    init(f,N);
+    init(f, N);
     print(f, N);
 
     // DFT
-    for(int i=0; i<N; i++)
+
+    for (int i = 0; i < N; i++) {
         g[i] = dft(f, N, i);
+    }
+    cout << "Résultat de la DFT" << endl;
     print(g, N);
 
     cout << "-- 1D --" << endl;
@@ -36,9 +39,10 @@ int main() {
     print(f, N);
 
     // IFFT. Comparez avec le f initial.
-    ifft(f, N);
-    print(f, N);
+    //ifft(f, N);
+    //print(f, N);
 
+    /*
     cout << "-- 2D --" << endl;
     init(f, N);
 
@@ -49,6 +53,6 @@ int main() {
     // IFFT.
     ifft2(f, W, H);
     print(f, N);
-
+*/
     return 0;
 }

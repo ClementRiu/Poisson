@@ -1,13 +1,16 @@
 #include "fft.h"
+#include "assert.h"
 
 // Discrete Fourier transform a l'index k du signal f de longueur n.
 // s=-1 pour DFT directe, s=+1 pour DFT inverse.
 complex<float> dft(const complex<float> f[], int n, int k, float s) {
-    complex<float> somme=0;
-    for (int i=0; i<n ; i++){
-        somme+=f[i]*polar<float>(1.0f,float(s*2*i*k*M_PI/n));
+    complex<float> somme = 0;
+    for (int i = 0; i < n; i++) {
+        somme += f[i] * polar<float>(1.0f, float(s * 2 * i * k * M_PI / n));
     }
-    return somme*polar(float(sqrt(1/n)),0.0f);
+
+    return polar(sqrt(1 / float(n)), 0.0f) * somme;
+
 }
 
 // Fast Fourier transform du signal f(deb:pas:fin) (Matlab notation).
@@ -16,41 +19,59 @@ complex<float> dft(const complex<float> f[], int n, int k, float s) {
 // celle de f.
 void fft_main(complex<float> f[], int deb, int pas, int fin, float s,
               complex<float> buffer[]) {
-    int n= (fin-deb)/pas;
-    if (n==1){
-
+    int n = (fin - deb) / pas + 1;
+    if (n == 1) {
+        return;
     }
-    for (int i=deb; i<fin;i+=pas){
+
+    assert(n % 2 == 0);
+
+    fft_main(f, 0, 2 * pas, fin - 1, 1.0f, buffer);
+    fft_main(f, 1, 2 * pas, fin, 1.0f, buffer);
+
+    for (int i = 0; i < n / 2; i++) {
+        buffer[deb + i * pas] = f[deb + i * pas];
+        buffer[deb + (i + n / 2) * pas] = f[deb + (i + n / 2) * pas];
+    }
+
+    complex<float> t = 1;
+    complex<float> w = polar(1.0f, float(s * 2 * M_PI / n));
+    cout<<w<<endl;
+
+    for (int i = 0; i < n / 2; i++) {
+        f[deb + i * pas] = buffer[2 * i] + t * buffer[2 * i + 1];
+        f[deb + (i + n / 2) * pas] = buffer[2 * i] - t * buffer[2 * i + 1];
+
+        t*= w;
     }
 }
 
 // Divise tous les coefficients de f par la racine carree de sa longueur n.
 void normalize(complex<float> f[], int n, float div) {
-    for(int i=0; i<n; i++)
+    for (int i = 0; i < n; i++)
         f[i] /= div;
 }
 
 // FFT du signal f de longueur n.
-void fft(complex<float> f[], int n) {
-    complex<float>* buffer = new complex<float>[n];/*
-    for (int i=0; i<n; i++){
-        buffer[i]=f[i];
-    }*/
-    fft_main(f,0,2,n,1.0f,buffer);
-    fft_main(f,1,2,n+1,1.0f,buffer);
-    normalize(f,n,sqrt(n));
+void fft(complex<float> f[], int len) {
+    complex<float> *buffer = new complex<float>[len];
+
+    fft_main(f, 0, 2, len - 1, 1.0f, buffer);
+    fft_main(f, 1, 2, len, 1.0f, buffer);
+    normalize(f, len, sqrt(float(len)));
+
     delete[]buffer;
 }
 
 // FFT inverse du signal f de longueur n.
 void ifft(complex<float> f[], int n) {
-    complex<float>* buffer = new complex<float>[n];
-    for (int i=0; i<n; i++){
-        buffer[i]=f[i];
+    complex<float> *buffer = new complex<float>[n];
+    for (int i = 0; i < n; i++) {
+        buffer[i] = f[i];
     }
-    fft_main(f,0,2,n,-1.0f,buffer);
-    fft_main(f,1,2,n+1,-1.0f,buffer);
-    normalize(f,n,sqrt(n));
+    fft_main(f, 0, 2, n, -1.0f, buffer);
+    fft_main(f, 1, 2, n, -1.0f, buffer);
+    normalize(f, n, sqrt(float(n)));
     delete[]buffer;
 }
 
