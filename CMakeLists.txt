@@ -9,3 +9,13 @@ find_package(Imagine)
 project(FFT)
 
 add_executable(fft fft.h fft.cpp test_fft.cpp)
+
+add_executable(contrastePoisson fft.h fft.cpp
+                                poisson.h poisson.cpp
+                                contrastePoisson.cpp)
+ImagineUseModules(contrastePoisson Images)
+
+add_executable(clonePoisson fft.h fft.cpp
+                            poisson.h poisson.cpp
+                            clonePoisson.cpp)
+ImagineUseModules(clonePoisson Images)
