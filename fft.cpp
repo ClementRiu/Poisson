@@ -26,8 +26,8 @@ void fft_main(complex<float> f[], int deb, int pas, int fin, float s,
 
     assert(n % 2 == 0);
 
-    fft_main(f, deb, 2 * pas, fin - pas, -1.0f, buffer);
-    fft_main(f, deb + pas, 2 * pas, fin, -1.0f, buffer);
+    fft_main(f, deb, 2 * pas, fin - pas, s, buffer);
+    fft_main(f, deb + pas, 2 * pas, fin, s, buffer);
 
     for (int i = 0; i < n; i++) {
         buffer[i] = f[deb + i * pas];
