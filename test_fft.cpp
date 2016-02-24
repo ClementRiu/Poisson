@@ -3,6 +3,7 @@
 
 const int W = 8, H = 2; // Dimensions du signal 2D
 const int N = W * H;    // Dimensions du signal 1D
+//(i,j) = i+W*j
 
 // Affichage d'un tableau de complexes.
 void print(const complex<float> f[], int n) {

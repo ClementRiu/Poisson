@@ -72,10 +72,32 @@ void ifft(complex<float> f[], int len) {
 
 // FFT du signal 2D f de dimension wxh.
 void fft2(complex<float> f[], int w, int h) {
-    
+    complex<float> *buffer = new complex<float>[w * h];
+
+    for (int i = 0; i < h; i++) {
+        fft_main(f, i * w, 1, (1 + i) * w - 1, -1.0f, buffer);
+    }
+    for (int i = 0; i < w; i++) {
+        fft_main(f, i, w, (h - 1) * w + i, -1.0f, buffer);
+    }
+
+    normalize(f, w * h, sqrt(float(w * h)));
+
+    delete[] buffer;
 }
 
 // FFT inverse du signal 2D f de dimentsion wxh.
 void ifft2(complex<float> f[], int w, int h) {
+    complex<float> *buffer = new complex<float>[w * h];
 
+    for (int i = 0; i < h; i++) {
+        fft_main(f, i * w, 1, (1 + i) * w - 1, 1.0f, buffer);
+    }
+    for (int i = 0; i < w; i++) {
+        fft_main(f, i, w, (h - 1) * w + i, 1.0f, buffer);
+    }
+
+    normalize(f, w * h, sqrt(float(w * h)));
+
+    delete[] buffer;
 }
