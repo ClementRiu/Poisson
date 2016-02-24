@@ -26,23 +26,21 @@ void fft_main(complex<float> f[], int deb, int pas, int fin, float s,
 
     assert(n % 2 == 0);
 
-    fft_main(f, 0, 2 * pas, fin - 1, 1.0f, buffer);
-    fft_main(f, 1, 2 * pas, fin, 1.0f, buffer);
+    fft_main(f, deb, 2 * pas, fin - pas, -1.0f, buffer);
+    fft_main(f, deb + pas, 2 * pas, fin, -1.0f, buffer);
 
-    for (int i = 0; i < n / 2; i++) {
-        buffer[deb + i * pas] = f[deb + i * pas];
-        buffer[deb + (i + n / 2) * pas] = f[deb + (i + n / 2) * pas];
+    for (int i = 0; i < n; i++) {
+        buffer[i] = f[deb + i * pas];
     }
 
     complex<float> t = 1;
     complex<float> w = polar(1.0f, float(s * 2 * M_PI / n));
-    cout<<w<<endl;
 
     for (int i = 0; i < n / 2; i++) {
         f[deb + i * pas] = buffer[2 * i] + t * buffer[2 * i + 1];
         f[deb + (i + n / 2) * pas] = buffer[2 * i] - t * buffer[2 * i + 1];
 
-        t*= w;
+        t *= w;
     }
 }
 
@@ -56,29 +54,28 @@ void normalize(complex<float> f[], int n, float div) {
 void fft(complex<float> f[], int len) {
     complex<float> *buffer = new complex<float>[len];
 
-    fft_main(f, 0, 2, len - 1, 1.0f, buffer);
-    fft_main(f, 1, 2, len, 1.0f, buffer);
+    fft_main(f, 0, 1, len - 1, -1.0f, buffer);
     normalize(f, len, sqrt(float(len)));
 
-    delete[]buffer;
+    delete[] buffer;
 }
 
 // FFT inverse du signal f de longueur n.
-void ifft(complex<float> f[], int n) {
-    complex<float> *buffer = new complex<float>[n];
-    for (int i = 0; i < n; i++) {
-        buffer[i] = f[i];
-    }
-    fft_main(f, 0, 2, n, -1.0f, buffer);
-    fft_main(f, 1, 2, n, -1.0f, buffer);
-    normalize(f, n, sqrt(float(n)));
-    delete[]buffer;
+void ifft(complex<float> f[], int len) {
+    complex<float> *buffer = new complex<float>[len];
+
+    fft_main(f, 0, 1, len - 1, 1.0f, buffer);
+    normalize(f, len, sqrt(float(len)));
+
+    delete[] buffer;
 }
 
 // FFT du signal 2D f de dimension wxh.
 void fft2(complex<float> f[], int w, int h) {
+    
 }
 
 // FFT inverse du signal 2D f de dimentsion wxh.
 void ifft2(complex<float> f[], int w, int h) {
+
 }

@@ -34,15 +34,15 @@ int main() {
 
     cout << "-- 1D --" << endl;
 
-    // FFT. Comparez avec g.
+    // FFT.
     fft(f, N);
     print(f, N);
 
-    // IFFT. Comparez avec le f initial.
-    //ifft(f, N);
-    //print(f, N);
+    // IFFT.
+    ifft(f, N);
+    print(f, N);
 
-    /*
+
     cout << "-- 2D --" << endl;
     init(f, N);
 
@@ -53,6 +53,6 @@ int main() {
     // IFFT.
     ifft2(f, W, H);
     print(f, N);
-*/
+
     return 0;
 }
