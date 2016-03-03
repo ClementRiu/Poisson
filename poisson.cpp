@@ -69,26 +69,82 @@ Image<complex<float> > agrandis(const Image<complex<float> > &I,
 void gradient(const Image<float> &I, Image<float> &Vx, Image<float> &Vy) {
     Vx = Image<float>(I.width(), I.height());
     Vy = Image<float>(I.width(), I.height());
-    // A completer
+    FVector<float, 2> T;
+
+    for (int i = 0; i < I.width(); i++) {
+        for (int j = 0; j < I.height(); j++) {
+            Coords<2> pos = (i, j);
+            T = gradient(I, pos);
+            Vx(i, j) = T.x();
+            Vy(i, j) = T.y();
+        }
+    }
 }
 
 // Calcul en Fourier de la derivee suivant x.
 void Fourier_dx(Image<complex<float> > &F) {
+    fft2(F.data(), F.width(), F.height());
 }
 
 // Derivee suivant x par DFT.
 Image<float> dx(Image<complex<float> > F) {
-    // A completer
+    F = F.clone();
+
+    Fourier_dx(F);
+
+    complex<float> u = polar<float>(1.0f, float(M_PI / 2));
+
+    for (int i = 0; i < F.width() / 2; i++) {
+        for (int j = 0; j < F.height(); j++) {
+            F(i, j) = 2 * float(M_PI) * i * u * F(i, j) * (1 / float(F.width()));
+        }
+    }
+
+    for (int j = 0; j < F.height(); j++) {
+        F(F.width() / 2, j) = 0;
+    }
+
+    for (int i = F.width() / 2 + 1; i < F.width(); i++) {
+        for (int j = 0; j < F.height(); j++) {
+            F(i, j) = 2 * float(M_PI) * (i - F.width()) * u * F(i, j) * (1 / float(F.width()));
+        }
+    }
+
+
+    ifft2(F.data(), F.width(), F.height());
+
     return realImage(F);
 }
 
 // Calcul en Fourier de la derivee suivant y.
 void Fourier_dy(Image<complex<float> > &F) {
+    fft2(F.data(), F.width(), F.height());
 }
 
 // Derivee suivant y par DFT.
 Image<float> dy(Image<complex<float> > F) {
-    // A completer
+    F = F.clone();
+
+    Fourier_dy(F);
+
+    complex<float> u = polar<float>(1.0f, float(M_PI / 2));
+
+    for (int i = 0; i < F.height() / 2; i++) {
+        for (int j = 0; j < F.width(); j++) {
+            F(j, i) = 2 * float(M_PI) * i * u * F(j, i) * (1 / float(F.height()));
+        }
+    }
+    for (int j = 0; j < F.height(); j++) {
+        F(j, F.height() / 2) = 0;
+    }
+    for (int i = F.height() / 2 + 1; i < F.height(); i++) {
+        for (int j = 0; j < F.width(); j++) {
+            F(j, i) = 2 * float(M_PI) * (i - F.height()) * u * F(j, i) * (1 / float(F.height()));
+        }
+    }
+
+    ifft2(F.data(), F.width(), F.height());
+
     return realImage(F);
 }
 
@@ -96,6 +152,46 @@ Image<float> dy(Image<complex<float> > F) {
 Image<float> poisson(Image<complex<float> > Vx,
                      Image<complex<float> > Vy) {
     Image<complex<float> > u(Vx.width(), Vx.height());
-    // A completer
+
+    complex<float> z = polar<float>(1.0f, float(M_PI / 2));
+
+
+    for (int i = 0; i < u.width(); i++) {
+        for (int j = 0; j < u.height(); j++) {
+            if (i == 0 && j == 0) {
+                u(i, j) = 0;
+            }
+
+            if (i < u.width() / 2 && j < u.height() / 2) {
+                u(i, j) = ((2 * float(M_PI) * i * z / float(u.width())) * Vx(i, j) +
+                           (2 * float(M_PI) * j * z / float(u.height())) * Vy(i, j))
+                          / (pow(2 * float(M_PI) * i * z / float(u.width()), 2) +
+                             pow(2 * float(M_PI) * j * z / float(u.height()), 2));
+            }
+
+            if (i < u.width() / 2 && j >= u.height() / 2) {
+                u(i, j) = ((2 * float(M_PI) * i * z / float(u.width())) * Vx(i, j) +
+                           (2 * float(M_PI) * (j - u.width()) * z / float(u.height())) * Vy(i, j))
+                          / (pow(2 * float(M_PI) * i * z / float(u.width()), 2) +
+                             pow(2 * float(M_PI) * (j - u.width()) * z / float(u.height()), 2));
+            }
+
+            if (i >= u.width() / 2 && j < u.height() / 2) {
+                u(i, j) = ((2 * float(M_PI) * (i - u.width()) * z / float(u.width())) * Vx(i, j) +
+                           (2 * float(M_PI) * j * z / float(u.height())) * Vy(i, j))
+                          / (pow(2 * float(M_PI) * (i - u.width()) * z / float(u.width()), 2) +
+                             pow(2 * float(M_PI) * j * z / float(u.height()), 2));
+            }
+
+            if (i >= u.width() / 2 && j >= u.height() / 2) {
+                u(i, j) = ((2 * float(M_PI) * (i - u.width()) * z / float(u.width())) * Vx(i, j) +
+                           (2 * float(M_PI) * (j - u.height()) * z / float(u.height())) * Vy(i, j))
+                          / (pow(2 * float(M_PI) * (i - u.width()) * z / float(u.width()), 2) +
+                             pow(2 * float(M_PI) * (j - u.height()) * z / float(u.height()), 2));
+            }
+        }
+
+    }
+
     return realImage(u);
 }
