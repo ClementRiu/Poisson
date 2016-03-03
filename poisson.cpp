@@ -73,33 +73,22 @@ void gradient(const Image<float> &I, Image<float> &Vx, Image<float> &Vy) {
 
     for (int i = 0; i < I.width(); i++) {
         for (int j = 0; j < I.height(); j++) {
-            Coords<2> pos = (i, j);
-            T = gradient(I, pos);
-            Vx(i, j) = T.x();
-            Vy(i, j) = T.y();
+            T = gradient(I, Coords<2> (i,j));
+            Vx(i, j) = T[0];
+            Vy(i, j) = T[1];
         }
     }
 }
 
 // Calcul en Fourier de la derivee suivant x.
 void Fourier_dx(Image<complex<float> > &F) {
-    fft2(F.data(), F.width(), F.height());
-}
-
-// Derivee suivant x par DFT.
-Image<float> dx(Image<complex<float> > F) {
     F = F.clone();
 
-    int a = puis2(F.width());
-    int b = puis2(F.height());
-
-    agrandis(F,a,b);
-
-    Fourier_dx(F);
+    fft2(F.data(), F.width(), F.height());
 
     complex<float> u = polar<float>(1.0f, float(M_PI / 2));
 
-    for (int i = 0; i < F.width() / 2; i++) {
+    for (int i = 0; i < F.width()/ 2; i++) {
         for (int j = 0; j < F.height(); j++) {
             F(i, j) = 2 * float(M_PI) * i * u * F(i, j) * (1 / float(F.width()));
         }
@@ -114,28 +103,34 @@ Image<float> dx(Image<complex<float> > F) {
             F(i, j) = 2 * float(M_PI) * (i - F.width()) * u * F(i, j) * (1 / float(F.width()));
         }
     }
+}
 
+// Derivee suivant x par DFT.
+Image<float> dx(Image<complex<float> > F) {
+    F = F.clone();
+
+    int w= F.width();
+    int h= F.height();
+
+    int a = puis2(F.width());
+    int b = puis2(F.height());
+
+    F = agrandis(F,a,b);
+
+    Fourier_dx(F);
 
     ifft2(F.data(), F.width(), F.height());
 
+    F.getSubImage(0,0,w,h);
+    
     return realImage(F);
 }
 
 // Calcul en Fourier de la derivee suivant y.
 void Fourier_dy(Image<complex<float> > &F) {
-    fft2(F.data(), F.width(), F.height());
-}
-
-// Derivee suivant y par DFT.
-Image<float> dy(Image<complex<float> > F) {
     F = F.clone();
 
-    int a = puis2(F.width());
-    int b = puis2(F.height());
-
-    agrandis(F,a,b);
-
-    Fourier_dy(F);
+    fft2(F.data(), F.width(), F.height());
 
     complex<float> u = polar<float>(1.0f, float(M_PI / 2));
 
@@ -144,16 +139,37 @@ Image<float> dy(Image<complex<float> > F) {
             F(j, i) = 2 * float(M_PI) * i * u * F(j, i) * (1 / float(F.height()));
         }
     }
+
     for (int j = 0; j < F.height(); j++) {
         F(j, F.height() / 2) = 0;
     }
+
     for (int i = F.height() / 2 + 1; i < F.height(); i++) {
         for (int j = 0; j < F.width(); j++) {
             F(j, i) = 2 * float(M_PI) * (i - F.height()) * u * F(j, i) * (1 / float(F.height()));
         }
     }
+}
+
+// Derivee suivant y par DFT.
+Image<float> dy(Image<complex<float> > F) {
+    F=F.clone();
+
+
+    int w=F.width();
+    int h=F.height();
+
+    int a = puis2(F.width());
+    int b = puis2(F.height());
+
+
+    F = agrandis(F,a,b);
+
+    Fourier_dy(F);
 
     ifft2(F.data(), F.width(), F.height());
+
+    F.getSubImage(0,0,w,h);
 
     return realImage(F);
 }
@@ -165,6 +181,9 @@ Image<float> poisson(Image<complex<float> > Vx,
 
     complex<float> z = polar<float>(1.0f, float(M_PI / 2));
 
+    Fourier_dx(Vx);
+    Fourier_dy(Vy);
+
 
     for (int i = 0; i < u.width(); i++) {
         for (int j = 0; j < u.height(); j++) {
@@ -172,7 +191,7 @@ Image<float> poisson(Image<complex<float> > Vx,
                 u(i, j) = 0;
             }
 
-            if (i < u.width() / 2 && j < u.height() / 2) {
+            if (i < u.width() / 2 && j < u.height() / 2 && (i!=0 && j!=0)) {
                 u(i, j) = ((2 * float(M_PI) * i * z / float(u.width())) * Vx(i, j) +
                            (2 * float(M_PI) * j * z / float(u.height())) * Vy(i, j))
                           / (pow(2 * float(M_PI) * i * z / float(u.width()), 2) +
@@ -200,8 +219,8 @@ Image<float> poisson(Image<complex<float> > Vx,
                              pow(2 * float(M_PI) * (j - u.height()) * z / float(u.height()), 2));
             }
         }
-
     }
+    ifft2(u.data(),u.width(),u.height());
 
     return realImage(u);
 }

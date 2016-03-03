@@ -30,10 +30,10 @@ int main(int argc, char *argv[]) {
     cout << "Contraste simple" << endl;
     affiche(I);
     gradient(I, Vx, Vy);
-    //click();
-    //affiche(Vx);
-    //click();
-    //affiche(Vy);
+    click();
+    affiche(Vx);
+    click();
+    affiche(Vy);
 
 
     click();
