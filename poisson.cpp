@@ -90,6 +90,11 @@ void Fourier_dx(Image<complex<float> > &F) {
 Image<float> dx(Image<complex<float> > F) {
     F = F.clone();
 
+    int a = puis2(F.width());
+    int b = puis2(F.height());
+
+    agrandis(F,a,b);
+
     Fourier_dx(F);
 
     complex<float> u = polar<float>(1.0f, float(M_PI / 2));
@@ -124,6 +129,11 @@ void Fourier_dy(Image<complex<float> > &F) {
 // Derivee suivant y par DFT.
 Image<float> dy(Image<complex<float> > F) {
     F = F.clone();
+
+    int a = puis2(F.width());
+    int b = puis2(F.height());
+
+    agrandis(F,a,b);
 
     Fourier_dy(F);
 
