@@ -42,7 +42,14 @@ void cloneRect(int &xc, int &yc, const Image<byte> &bg, const Image<byte> &fg) {
 void maxGradient(const Image<float> &Vx1, const Image<float> &Vy1,
                  Image<float> &Vx2, Image<float> &Vy2,
                  int x1, int y1, int x2, int y2, int xc, int yc) {
-    // A completer
+    for (int i = 0; i < x2 - x1; i++) {
+        for (int j = 0; j < y2 - y1; j++) {
+            if (pow(Vx1(x1 + i, y1 + j) + Vy1(x1 + i, y1 + j),2) > pow(Vx2(xc + i, yc + j) + Vy2(xc + i, yc + j),2)) {
+                Vx2(xc + i, yc + j) = Vx1(x1 + i, y1 + j);
+                Vy2(xc + i, yc + j) = Vy1(x1 + i, y1 + j);
+            }
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -62,10 +69,73 @@ int main(int argc, char *argv[]) {
     display(I1);
     Window W2 = openWindow(I2.width(), I2.height());
     setActiveWindow(W2);
-    I2 = affichable(I2);
-    display(I2);
 
-    // A completer
+    affiche(I2);
+
+    Image<float> Vx1 = dx(I1),
+                Vy1 = dy(I1),
+                Vx2 = dx(I2),
+                Vy2 = dy(I2);
+    //gradient(I1, Vx1, Vy1);
+    //gradient(I2, Vx2, Vy2);
+
+    int x1, x2, y1, y2;
+    int xc = 0;
+    int yc = 0;
+
+    cout << "Prêt à démarrer"<<endl;
+
+    setActiveWindow(W1);
+    selectionRect(x1, y1, x2, y2, I1);
+
+    setActiveWindow(W2);
+    getMouse(xc, yc);
+    int w = x2 - x1;
+    int h = y2 - y1;
+
+
+    if (w + xc > I2.width()) {
+        w -= xc;
+    }
+
+    if (h + yc > I2.height()) {
+        h -= yc;
+    }
+
+
+    Image<float> Rec(w, h);
+    for (int i = 0; i < w; i++) {
+        for (int j = 0; j < h; j++) {
+            Rec(i, j) = I1(i + x1, j + y1);
+        }
+    }
+
+    cloneRect(xc, yc, I2, Rec);
+
+    cout<<"..."<<endl;
+
+    affiche(I2);
+
+    click();
+
+    cout<<"..."<<endl;
+
+    maxGradient(Vx1, Vy1, Vx2, Vy2, x1, y1, x2, y2, xc, yc);
+
+    int w2 = Vx2.width();
+    int h2 = Vx2.height();
+
+    int a = puis2(w2);
+    int b = puis2(h2);
+
+    Vx2 = agrandis(Vx2, a, b);
+    Vy2 = agrandis(Vy2, a, b);
+
+    Image<float> z = poisson(Vx2, Vy2);
+    z.getSubImage(0, 0, w2, h2);
+    affiche(z);
+
+    click();
 
     endGraphics();
     return 0;

@@ -65,6 +65,29 @@ Image<complex<float> > agrandis(const Image<complex<float> > &I,
     return I2;
 }
 
+Image<float> agrandis(const Image<float> &I,
+                                int w, int h) {
+    Image<float> I2(w, h);
+    I2.fill(0.0f);
+    for (int i = 0; i < I.height(); i++)
+        for (int j = 0; j < I.width(); j++)
+            I2(j, i) = I(j, i);
+    return I2;
+}
+
+
+/*
+template <typename T>
+Image<T> agrandis(const Image <T> &I, int w, int h){
+    Image<T> I2(w, h);
+    I2.fill(0.0f);
+    for (int i = 0; i < I.height(); i++)
+        for (int j = 0; j < I.width(); j++)
+            I2(j, i) = I(j, i);
+    return I2;
+}
+ */
+
 // Gradient de l'image I par differences finies.
 void gradient(const Image<float> &I, Image<float> &Vx, Image<float> &Vy) {
     Vx = Image<float>(I.width(), I.height());
@@ -82,15 +105,13 @@ void gradient(const Image<float> &I, Image<float> &Vx, Image<float> &Vy) {
 
 // Calcul en Fourier de la derivee suivant x.
 void Fourier_dx(Image<complex<float> > &F) {
-    F = F.clone();
-
     fft2(F.data(), F.width(), F.height());
 
     complex<float> u = polar<float>(1.0f, float(M_PI / 2));
 
     for (int i = 0; i < F.width() / 2; i++) {
         for (int j = 0; j < F.height(); j++) {
-            F(i, j) = 2 * float(M_PI) * i * u * F(i, j) * (1 / float(F.width()));
+            F(i, j) *= 2 * float(M_PI) * i * u * (1 / float(F.width()));
         }
     }
 
@@ -100,7 +121,7 @@ void Fourier_dx(Image<complex<float> > &F) {
 
     for (int i = F.width() / 2 + 1; i < F.width(); i++) {
         for (int j = 0; j < F.height(); j++) {
-            F(i, j) = 2 * float(M_PI) * (i - F.width()) * u * F(i, j) * (1 / float(F.width()));
+            F(i, j) *= 2 * float(M_PI) * (i - F.width()) * u * (1 / float(F.width()));
         }
     }
 }
@@ -128,15 +149,13 @@ Image<float> dx(Image<complex<float> > F) {
 
 // Calcul en Fourier de la derivee suivant y.
 void Fourier_dy(Image<complex<float> > &F) {
-    F = F.clone();
-
     fft2(F.data(), F.width(), F.height());
 
     complex<float> u = polar<float>(1.0f, float(M_PI / 2));
 
     for (int i = 0; i < F.height() / 2; i++) {
         for (int j = 0; j < F.width(); j++) {
-            F(j, i) = 2 * float(M_PI) * i * u * F(j, i) * (1 / float(F.height()));
+            F(j, i)*= 2 * float(M_PI) * i * u * (1 / float(F.height()));
         }
     }
 
@@ -146,7 +165,7 @@ void Fourier_dy(Image<complex<float> > &F) {
 
     for (int i = F.height() / 2 + 1; i < F.height(); i++) {
         for (int j = 0; j < F.width(); j++) {
-            F(j, i) = 2 * float(M_PI) * (i - F.height()) * u * F(j, i) * (1 / float(F.height()));
+            F(j, i) *= 2 * float(M_PI) * (i - F.height()) * u * (1 / float(F.height()));
         }
     }
 }
@@ -154,7 +173,6 @@ void Fourier_dy(Image<complex<float> > &F) {
 // Derivee suivant y par DFT.
 Image<float> dy(Image<complex<float> > F) {
     F = F.clone();
-
 
     int w = F.width();
     int h = F.height();

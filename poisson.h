@@ -7,6 +7,8 @@
 using namespace std;
 using namespace Imagine;
 
+template <typename T>
+
 Image<byte> affichable(const Image<float> &F);
 
 void affiche(const Image<float> &F);
@@ -19,3 +21,19 @@ Image<float> dy(Image<complex<float> > F);
 
 Image<float> poisson(Image<complex<float> > Vx,
                      Image<complex<float> > Vy);
+
+int puis2(int i);
+
+
+Image<complex<float> > agrandis(const Image<complex<float> > &I,
+                                int w, int h);
+
+Image<float> agrandis(const Image<float> &I,
+                      int w, int h);
+
+
+
+/*
+template <typename T>
+Image<T> agrandis(const Image<T> &I, int w, int h);
+ */
