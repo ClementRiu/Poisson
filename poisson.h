@@ -22,16 +22,7 @@ Image<float> dy(Image<complex<float> > F);
 Image<float> poisson(Image<complex<float> > Vx,
                      Image<complex<float> > Vy);
 
-int puis2(int i);
-
-
-Image<complex<float> > agrandis(const Image<complex<float> > &I,
-                                int w, int h);
-
-Image<float> agrandis(const Image<float> &I,
-                      int w, int h);
-
-
+void affineContraste(Image<float> F, float &a, float &b);
 
 /*
 template <typename T>

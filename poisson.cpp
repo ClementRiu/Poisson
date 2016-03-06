@@ -195,12 +195,19 @@ Image<float> poisson(Image<complex<float> > Vx,
                      Image<complex<float> > Vy) {
     int w = Vx.width();
     int h = Vx.height();
-    Image<complex<float> > u(w, h);
+
+    int a = puis2(w);
+    int b = puis2(h);
+
+    Vx = agrandis(Vx, a, b);
+    Vy = agrandis(Vy, a, b);
+
+    Image<complex<float> > u(a, b);
 
     complex<float> z = polar<float>(1.0f, float(M_PI / 2));
 
-    fft2(Vx.data(), w, h);
-    fft2(Vy.data(), w, h);
+    fft2(Vx.data(), a, b);
+    fft2(Vy.data(), a, b);
 
     complex<float> deipi = 2 * float(M_PI) * z;
 
@@ -234,5 +241,5 @@ Image<float> poisson(Image<complex<float> > Vx,
 
     ifft2(u.data(), u.width(), u.height());
 
-    return realImage(u);
+    return realImage(u.getSubImage(0,0,w,h));
 }

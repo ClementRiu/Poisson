@@ -105,16 +105,28 @@ int main(int argc, char *argv[]) {
             Vx2 = dx(I2),
             Vy2 = dy(I2);
 
-    maxGradient(Vx1, Vy1, Vx2, Vy2, x1, y1, x2, y2, xc, yc);
+    maxGradient(Vx1, Vy1, Vx2, Vy2, x1, y1, x1 + w, y1 + h, xc, yc);
 
     int w2 = Vx2.width();
     int h2 = Vx2.height();
-
-    int a = puis2(w2);
-    int b = puis2(h2);
-
-    Vx2 = agrandis(Vx2, a, b);
-    Vy2 = agrandis(Vy2, a, b);
+    float a, b;
+    affineContraste(Vx2, a, b);
+    Image<byte> I(Vx2.width(), Vx2.height());
+    for (int i = 0; i < I.height(); i++)
+        for (int j = 0; j < I.width(); j++) {
+            float f = a * Vx2(j, i) + b + 0.5f;
+            if (f < 0) f = 0;
+            if (f > 255) f = 255;
+            I(j, i) = (byte) f;
+        }
+    affineContraste(Vx2, a, b);
+    for (int i = 0; i < I.height(); i++)
+        for (int j = 0; j < I.width(); j++) {
+            float f = a * Vy2(j, i) + b + 0.5f;
+            if (f < 0) f = 0;
+            if (f > 255) f = 255;
+            I(j, i) = (byte) f;
+        }
 
     Image<float> z = poisson(Vx2, Vy2);
     z.getSubImage(0, 0, w2, h2);
