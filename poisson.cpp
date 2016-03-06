@@ -66,7 +66,7 @@ Image<complex<float> > agrandis(const Image<complex<float> > &I,
 }
 
 Image<float> agrandis(const Image<float> &I,
-                                int w, int h) {
+                      int w, int h) {
     Image<float> I2(w, h);
     I2.fill(0.0f);
     for (int i = 0; i < I.height(); i++)
@@ -133,8 +133,8 @@ Image<float> dx(Image<complex<float> > F) {
     int w = F.width();
     int h = F.height();
 
-    int a = puis2(F.width());
-    int b = puis2(F.height());
+    int a = puis2(w);
+    int b = puis2(h);
 
     F = agrandis(F, a, b);
 
@@ -155,7 +155,7 @@ void Fourier_dy(Image<complex<float> > &F) {
 
     for (int i = 0; i < F.height() / 2; i++) {
         for (int j = 0; j < F.width(); j++) {
-            F(j, i)*= 2 * float(M_PI) * i * u * (1 / float(F.height()));
+            F(j, i) *= 2 * float(M_PI) * i * u * (1 / float(F.height()));
         }
     }
 
@@ -177,8 +177,8 @@ Image<float> dy(Image<complex<float> > F) {
     int w = F.width();
     int h = F.height();
 
-    int a = puis2(F.width());
-    int b = puis2(F.height());
+    int a = puis2(w);
+    int b = puis2(h);
 
 
     F = agrandis(F, a, b);
@@ -195,49 +195,45 @@ Image<float> dy(Image<complex<float> > F) {
 // Resouds l'equation de Poisson.
 Image<float> poisson(Image<complex<float> > Vx,
                      Image<complex<float> > Vy) {
-    Image<complex<float> > u(Vx.width(), Vx.height());
+    int w = Vx.width();
+    int h = Vx.height();
+    Image<complex<float> > u(w, h);
 
     complex<float> z = polar<float>(1.0f, float(M_PI / 2));
 
-    fft2(Vx.data(), Vx.width(), Vx.height());
-    fft2(Vy.data(), Vy.width(), Vy.height());
+    fft2(Vx.data(), w, h);
+    fft2(Vy.data(), w, h);
 
+    complex<float> deipi = 2 * float(M_PI) * z;
 
-    for (int i = 0; i < u.width(); i++) {
-        for (int j = 0; j < u.height(); j++) {
+    float w_f = float(w);
+    float h_f = float(h);
+    for (int i = 0; i < w / 2; i++) {
+        for (int j = 0; j < h / 2; j++) {
             if (i == 0 && j == 0) {
-                u(i, j) = 0;
+                u(i, j) = 0.f;
             }
-
-            if (i < u.width() / 2 && j < u.height() / 2 && (i != 0 && j != 0)) {
-                u(i, j) = ((2 * float(M_PI) * i * z / float(u.width())) * Vx(i, j) +
-                           (2 * float(M_PI) * j * z / float(u.height())) * Vy(i, j))
-                          / (pow(2 * float(M_PI) * i * z / float(u.width()), 2) +
-                             pow(2 * float(M_PI) * j * z / float(u.height()), 2));
-            }
-
-            if (i < u.width() / 2 && j >= u.height() / 2) {
-                u(i, j) = ((2 * float(M_PI) * i * z / float(u.width())) * Vx(i, j) +
-                           (2 * float(M_PI) * (j - u.width()) * z / float(u.height())) * Vy(i, j))
-                          / (pow(2 * float(M_PI) * i * z / float(u.width()), 2) +
-                             pow(2 * float(M_PI) * (j - u.width()) * z / float(u.height()), 2));
-            }
-
-            if (i >= u.width() / 2 && j < u.height() / 2) {
-                u(i, j) = ((2 * float(M_PI) * (i - u.width()) * z / float(u.width())) * Vx(i, j) +
-                           (2 * float(M_PI) * j * z / float(u.height())) * Vy(i, j))
-                          / (pow(2 * float(M_PI) * (i - u.width()) * z / float(u.width()), 2) +
-                             pow(2 * float(M_PI) * j * z / float(u.height()), 2));
-            }
-
-            if (i >= u.width() / 2 && j >= u.height() / 2) {
-                u(i, j) = ((2 * float(M_PI) * (i - u.width()) * z / float(u.width())) * Vx(i, j) +
-                           (2 * float(M_PI) * (j - u.height()) * z / float(u.height())) * Vy(i, j))
-                          / (pow(2 * float(M_PI) * (i - u.width()) * z / float(u.width()), 2) +
-                             pow(2 * float(M_PI) * (j - u.height()) * z / float(u.height()), 2));
+            else {
+                float i_f = float(i);
+                float j_f = float(j);
+                u(i, j) = (deipi * i_f / w_f * Vx(i, j) + (deipi * j_f / h_f * Vy(i, j))) /
+                          (pow(deipi * i_f / w_f, 2) + pow(deipi * j_f / h_f, 2));
+                u(i + w / 2, j) =
+                        (deipi * (i_f - w_f / 2) / w_f * Vx(i + w / 2, j) +
+                         (deipi * j_f / h_f * Vy(i + w / 2, j))) /
+                        (pow(deipi * (i_f - w_f / 2) / w_f, 2) + pow(deipi * j_f / h_f, 2));
+                u(i, j + h / 2) =
+                        (deipi * i_f / w_f * Vx(i, j + h / 2) +
+                         (deipi * (j_f - h_f / 2) / h_f * Vy(i, j + h / 2))) /
+                        (pow(deipi * i_f / w_f, 2) + pow(deipi * (j_f - h_f / 2) / h_f, 2));
+                u(i + w / 2, j + h / 2) = (deipi * (i_f - w_f / 2) / w_f * Vx(i + w / 2, j + h / 2) +
+                                           (deipi * (j_f - h_f / 2) / h_f * Vy(i + w / 2, j + h / 2))) /
+                                          (pow(deipi * (i_f - w_f / 2) / w_f, 2) +
+                                           pow(deipi * (j_f - h_f / 2) / h_f, 2));
             }
         }
     }
+
     ifft2(u.data(), u.width(), u.height());
 
     return realImage(u);
