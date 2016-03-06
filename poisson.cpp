@@ -142,9 +142,7 @@ Image<float> dx(Image<complex<float> > F) {
 
     ifft2(F.data(), F.width(), F.height());
 
-    F.getSubImage(0, 0, w, h);
-
-    return realImage(F);
+    return realImage(F.getSubImage(0,0,w,h));
 }
 
 // Calcul en Fourier de la derivee suivant y.
@@ -189,7 +187,7 @@ Image<float> dy(Image<complex<float> > F) {
 
     F.getSubImage(0, 0, w, h);
 
-    return realImage(F);
+    return realImage(F.getSubImage(0, 0, w, h));
 }
 
 // Resouds l'equation de Poisson.
