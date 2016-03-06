@@ -44,7 +44,7 @@ void maxGradient(const Image<float> &Vx1, const Image<float> &Vy1,
                  int x1, int y1, int x2, int y2, int xc, int yc) {
     for (int i = 0; i < x2 - x1; i++) {
         for (int j = 0; j < y2 - y1; j++) {
-            if (pow(Vx1(x1 + i, y1 + j) + Vy1(x1 + i, y1 + j),2) > pow(Vx2(xc + i, yc + j) + Vy2(xc + i, yc + j),2)) {
+            if (pow(Vx1(x1 + i, y1 + j),2) + pow(Vy1(x1 + i, y1 + j),2) > pow(Vx2(xc + i, yc + j),2) + pow(Vy2(xc + i, yc + j),2)) {
                 Vx2(xc + i, yc + j) = Vx1(x1 + i, y1 + j);
                 Vy2(xc + i, yc + j) = Vy1(x1 + i, y1 + j);
             }
@@ -72,13 +72,6 @@ int main(int argc, char *argv[]) {
 
     affiche(I2);
 
-    Image<float> Vx1 = dx(I1),
-                Vy1 = dy(I1),
-                Vx2 = dx(I2),
-                Vy2 = dy(I2);
-    //gradient(I1, Vx1, Vy1);
-    //gradient(I2, Vx2, Vy2);
-
     int x1, x2, y1, y2;
     int xc = 0;
     int yc = 0;
@@ -90,35 +83,27 @@ int main(int argc, char *argv[]) {
 
     setActiveWindow(W2);
     getMouse(xc, yc);
+
     int w = x2 - x1;
     int h = y2 - y1;
 
+    cloneRect(xc, yc, I2, I1.getSubImage(x1,y1,w,h));
+
 
     if (w + xc > I2.width()) {
-        w -= xc;
+        w = I2.width() - xc;
     }
 
     if (h + yc > I2.height()) {
-        h -= yc;
+        h = I2.height() - yc;
     }
-
-
-    Image<float> Rec(w, h);
-    for (int i = 0; i < w; i++) {
-        for (int j = 0; j < h; j++) {
-            Rec(i, j) = I1(i + x1, j + y1);
-        }
-    }
-
-    cloneRect(xc, yc, I2, Rec);
 
     cout<<"..."<<endl;
 
-    affiche(I2);
-
-    click();
-
-    cout<<"..."<<endl;
+    Image<float> Vx1 = dx(I1),
+            Vy1 = dy(I1),
+            Vx2 = dx(I2),
+            Vy2 = dy(I2);
 
     maxGradient(Vx1, Vy1, Vx2, Vy2, x1, y1, x2, y2, xc, yc);
 
