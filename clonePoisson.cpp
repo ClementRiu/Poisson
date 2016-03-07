@@ -79,60 +79,53 @@ int main(int argc, char *argv[]) {
     cout << "Prêt à démarrer"<<endl;
 
     setActiveWindow(W1);
-    selectionRect(x1, y1, x2, y2, I1);
 
-    setActiveWindow(W2);
-    getMouse(xc, yc);
+    Image<float> Vx1, Vy1, Vx2, Vy2;
+    float a,b;
 
-    int w = x2 - x1;
-    int h = y2 - y1;
+    while(selectionRect(x1, y1, x2, y2, I1)) {
 
-    cloneRect(xc, yc, I2, I1.getSubImage(x1,y1,w,h));
+        setActiveWindow(W2);
 
+        getMouse(xc, yc);
 
-    if (w + xc > I2.width()) {
-        w = I2.width() - xc;
-    }
+        int w = x2 - x1;
+        int h = y2 - y1;
 
-    if (h + yc > I2.height()) {
-        h = I2.height() - yc;
-    }
+        cloneRect(xc, yc, I2, I1.getSubImage(x1, y1, w, h));
 
-    cout<<"..."<<endl;
-
-    Image<float> Vx1 = dx(I1),
-            Vy1 = dy(I1),
-            Vx2 = dx(I2),
-            Vy2 = dy(I2);
-
-    maxGradient(Vx1, Vy1, Vx2, Vy2, x1, y1, x1 + w, y1 + h, xc, yc);
-
-    int w2 = Vx2.width();
-    int h2 = Vx2.height();
-    /*float a, b;
-    affineContraste(Vx2, a, b);
-    Image<byte> I(Vx2.width(), Vx2.height());
-    for (int i = 0; i < I.height(); i++)
-        for (int j = 0; j < I.width(); j++) {
-            float f = a * Vx2(j, i) + b + 0.5f;
-            if (f < 0) f = 0;
-            if (f > 255) f = 255;
-            I(j, i) = (byte) f;
+        if (w + xc > I2.width()) {
+            w = I2.width() - xc;
         }
-    affineContraste(Vy2, a, b);
-    for (int i = 0; i < I.height(); i++)
-        for (int j = 0; j < I.width(); j++) {
-            float f = a * Vy2(j, i) + b + 0.5f;
-            if (f < 0) f = 0;
-            if (f > 255) f = 255;
-            I(j, i) = (byte) f;
-        }
-    */
-    Image<float> z = poisson(Vx2, Vy2);
-    //z.getSubImage(0, 0, w2, h2);
-    affiche(z);
 
-    click();
+        if (h + yc > I2.height()) {
+            h = I2.height() - yc;
+        }
+
+        cout << "Calcul du gradient" << endl;
+
+        Vx1 = dx(I1);
+        Vy1 = dy(I1);
+        Vx2 = dx(I2);
+        Vy2 = dy(I2);
+
+        maxGradient(Vx1, Vy1, Vx2, Vy2, x1, y1, x1 + w, y1 + h, xc, yc);
+
+        cout<<"Reconstitution de l'image"<<endl;
+
+        Image<float> z = poisson(Vx2, Vy2);
+
+        affiche(z);
+
+        affineContraste(z,a,b);
+        I2=z.clone();
+
+        click();
+
+        affiche(I2);
+
+        setActiveWindow(W1);
+    }
 
     endGraphics();
     return 0;

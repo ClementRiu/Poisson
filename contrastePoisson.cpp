@@ -19,7 +19,7 @@ void masque(const Image<float> &I, Image<float> &Vx, Image<float> &Vy) {
 int main(int argc, char *argv[]) {
     Image<byte> I;
     Image<float> Vx, Vy;
-    if (!load(I, argc > 1 ? argv[1] : srcPath("bateau2.jpg"))) {
+    if (!load(I, argc > 1 ? argv[1] : srcPath("salon.png"))) {
         cout << "Echec de lecture d'image" << endl;
         return 1;
     }
@@ -31,27 +31,34 @@ int main(int argc, char *argv[]) {
     affiche(I);
     gradient(I, Vx, Vy);
     click();
+    cout << "Dérivée selon x par la fonction gradient" <<endl;
     affiche(Vx);
     click();
+    cout << "Dérivée selon y par la fonction gradient" <<endl;
     affiche(Vy);
-
 
     click();
 
-
     Image<float> F = dx(I);
+
+    cout << "Dérivée selon x par la fonction dx" <<endl;
 
     affiche(F);
 
     click();
 
     Image<float> U= dy(I);
+    cout << "Dérivée selon y par la fonction dy" <<endl;
+
     affiche(U);
+
     click();
 
     masque(I,F,U);
 
     Image<float> z = poisson(F,U);
+    cout << "Image reconstruite par poisson" <<endl;
+
     affiche(z);
 
     endGraphics();
