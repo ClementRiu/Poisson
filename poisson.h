@@ -7,8 +7,6 @@
 using namespace std;
 using namespace Imagine;
 
-template <typename T>
-
 Image<byte> affichable(const Image<float> &F);
 
 void affiche(const Image<float> &F);
@@ -23,8 +21,3 @@ Image<float> poisson(Image<complex<float> > Vx,
                      Image<complex<float> > Vy);
 
 void affineContraste(Image<float> F, float &a, float &b);
-
-/*
-template <typename T>
-Image<T> agrandis(const Image<T> &I, int w, int h);
- */

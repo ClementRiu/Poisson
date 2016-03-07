@@ -75,19 +75,6 @@ Image<float> agrandis(const Image<float> &I,
     return I2;
 }
 
-
-/*
-template <typename T>
-Image<T> agrandis(const Image <T> &I, int w, int h){
-    Image<T> I2(w, h);
-    I2.fill(0.0f);
-    for (int i = 0; i < I.height(); i++)
-        for (int j = 0; j < I.width(); j++)
-            I2(j, i) = I(j, i);
-    return I2;
-}
- */
-
 // Gradient de l'image I par differences finies.
 void gradient(const Image<float> &I, Image<float> &Vx, Image<float> &Vy) {
     Vx = Image<float>(I.width(), I.height());
