@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     int w2 = Vx2.width();
     int h2 = Vx2.height();
-    float a, b;
+    /*float a, b;
     affineContraste(Vx2, a, b);
     Image<byte> I(Vx2.width(), Vx2.height());
     for (int i = 0; i < I.height(); i++)
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
             if (f > 255) f = 255;
             I(j, i) = (byte) f;
         }
-    affineContraste(Vx2, a, b);
+    affineContraste(Vy2, a, b);
     for (int i = 0; i < I.height(); i++)
         for (int j = 0; j < I.width(); j++) {
             float f = a * Vy2(j, i) + b + 0.5f;
@@ -127,9 +127,9 @@ int main(int argc, char *argv[]) {
             if (f > 255) f = 255;
             I(j, i) = (byte) f;
         }
-
+    */
     Image<float> z = poisson(Vx2, Vy2);
-    z.getSubImage(0, 0, w2, h2);
+    //z.getSubImage(0, 0, w2, h2);
     affiche(z);
 
     click();

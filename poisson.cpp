@@ -206,11 +206,30 @@ Image<float> poisson(Image<complex<float> > Vx,
 
     complex<float> z = polar<float>(1.0f, float(M_PI / 2));
 
-    fft2(Vx.data(), a, b);
-    fft2(Vy.data(), a, b);
+    Fourier_dx(Vx);
+    Fourier_dy(Vy);
 
-    complex<float> deipi = 2 * float(M_PI) * z;
 
+    for (int i=0; i<b; ++i){
+        for (int j=0; j<a; ++j){
+            if (i == 0 && j == 0)
+                u(j, i) = 0;
+            else{
+                if (i < b/2 && j < a/2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*((float(j)/a)*(float(j)/a) + (float(i)/b)*(float(i)/b)), 0);
+                if (i < b/2 && j > a/2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*(((float(j-a))/a)*((float(j-a))/a) + (float(i)/b)*(float(i)/b)), 0);
+                if (i > b/2 && j < a/2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*((float(j)/a)*(float(j)/a) + (float(i-b)/b)*(float(i-b)/b)), 0);
+                if (i > b/2 && j > a/2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*((float(j-a)/a)*(float(j-a)/a) + (float(i-b)/b)*(float(i-b)/b)), 0);
+                if (i == b/2 || j == a/2)
+                    u(j, i) = 0;
+            }
+        }
+    }
+    
+    /*complex<float> deipi = 2 * float(M_PI) * z;
     float w_f = float(w);
     float h_f = float(h);
     for (int i = 0; i < w / 2; i++) {
@@ -221,23 +240,23 @@ Image<float> poisson(Image<complex<float> > Vx,
             else {
                 float i_f = float(i);
                 float j_f = float(j);
-                u(i, j) = (deipi * i_f / w_f * Vx(i, j) + (deipi * j_f / h_f * Vy(i, j))) /
+                u(i, j) = ( Vx(i, j) + (Vy(i, j))) /
                           (pow(deipi * i_f / w_f, 2) + pow(deipi * j_f / h_f, 2));
                 u(i + w / 2, j) =
-                        (deipi * (i_f - w_f / 2) / w_f * Vx(i + w / 2, j) +
-                         (deipi * j_f / h_f * Vy(i + w / 2, j))) /
+                        ( Vx(i + w / 2, j) +
+                         (Vy(i + w / 2, j))) /
                         (pow(deipi * (i_f - w_f / 2) / w_f, 2) + pow(deipi * j_f / h_f, 2));
                 u(i, j + h / 2) =
-                        (deipi * i_f / w_f * Vx(i, j + h / 2) +
-                         (deipi * (j_f - h_f / 2) / h_f * Vy(i, j + h / 2))) /
+                        (Vx(i, j + h / 2) +
+                         (Vy(i, j + h / 2))) /
                         (pow(deipi * i_f / w_f, 2) + pow(deipi * (j_f - h_f / 2) / h_f, 2));
-                u(i + w / 2, j + h / 2) = (deipi * (i_f - w_f / 2) / w_f * Vx(i + w / 2, j + h / 2) +
-                                           (deipi * (j_f - h_f / 2) / h_f * Vy(i + w / 2, j + h / 2))) /
+                u(i + w / 2, j + h / 2) = ( Vx(i + w / 2, j + h / 2) +
+                                           (Vy(i + w / 2, j + h / 2))) /
                                           (pow(deipi * (i_f - w_f / 2) / w_f, 2) +
                                            pow(deipi * (j_f - h_f / 2) / h_f, 2));
             }
         }
-    }
+    }*/
 
     ifft2(u.data(), u.width(), u.height());
 

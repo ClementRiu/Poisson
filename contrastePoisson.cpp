@@ -19,7 +19,7 @@ void masque(const Image<float> &I, Image<float> &Vx, Image<float> &Vy) {
 int main(int argc, char *argv[]) {
     Image<byte> I;
     Image<float> Vx, Vy;
-    if (!load(I, argc > 1 ? argv[1] : srcPath("salon.png"))) {
+    if (!load(I, argc > 1 ? argv[1] : srcPath("bateau2.jpg"))) {
         cout << "Echec de lecture d'image" << endl;
         return 1;
     }
