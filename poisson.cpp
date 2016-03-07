@@ -142,7 +142,7 @@ Image<float> dx(Image<complex<float> > F) {
 
     ifft2(F.data(), F.width(), F.height());
 
-    return realImage(F.getSubImage(0,0,w,h));
+    return realImage(F.getSubImage(0, 0, w, h));
 }
 
 // Calcul en Fourier de la derivee suivant y.
@@ -204,61 +204,37 @@ Image<float> poisson(Image<complex<float> > Vx,
 
     Image<complex<float> > u(a, b);
 
-    complex<float> z = polar<float>(1.0f, float(M_PI / 2));
-
     Fourier_dx(Vx);
+
     Fourier_dy(Vy);
-
-
-    for (int i=0; i<b; ++i){
-        for (int j=0; j<a; ++j){
+    for (int i = 0; i < b; ++i) {
+        for (int j = 0; j < a; ++j) {
             if (i == 0 && j == 0)
                 u(j, i) = 0;
-            else{
-                if (i < b/2 && j < a/2)
-                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*((float(j)/a)*(float(j)/a) + (float(i)/b)*(float(i)/b)), 0);
-                if (i < b/2 && j > a/2)
-                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*(((float(j-a))/a)*((float(j-a))/a) + (float(i)/b)*(float(i)/b)), 0);
-                if (i > b/2 && j < a/2)
-                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*((float(j)/a)*(float(j)/a) + (float(i-b)/b)*(float(i-b)/b)), 0);
-                if (i > b/2 && j > a/2)
-                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4*M_PI*M_PI)*((float(j-a)/a)*(float(j-a)/a) + (float(i-b)/b)*(float(i-b)/b)), 0);
-                if (i == b/2 || j == a/2)
+            else {
+                if (i < b / 2 && j < a / 2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(
+                            -(4 * pow(M_PI, 2)) * ((float(j) / a) * (float(j) / a) + (float(i) / b) * (float(i) / b)),
+                            0);
+                if (i < b / 2 && j > a / 2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4 * pow(M_PI, 2)) *
+                                                                     (((float(j - a)) / a) * ((float(j - a)) / a) +
+                                                                      (float(i) / b) * (float(i) / b)), 0);
+                if (i > b / 2 && j < a / 2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4 * pow(M_PI, 2)) *
+                                                                     ((float(j) / a) * (float(j) / a) +
+                                                                      (float(i - b) / b) * (float(i - b) / b)), 0);
+                if (i > b / 2 && j > a / 2)
+                    u(j, i) = (Vx(j, i) + Vy(j, i)) / complex<float>(-(4 * pow(M_PI, 2)) *
+                                                                     ((float(j - a) / a) * (float(j - a) / a) +
+                                                                      (float(i - b) / b) * (float(i - b) / b)), 0);
+                if (i == b / 2 || j == a / 2)
                     u(j, i) = 0;
             }
         }
     }
-    
-    /*complex<float> deipi = 2 * float(M_PI) * z;
-    float w_f = float(w);
-    float h_f = float(h);
-    for (int i = 0; i < w / 2; i++) {
-        for (int j = 0; j < h / 2; j++) {
-            if (i == 0 && j == 0) {
-                u(i, j) = 0.f;
-            }
-            else {
-                float i_f = float(i);
-                float j_f = float(j);
-                u(i, j) = ( Vx(i, j) + (Vy(i, j))) /
-                          (pow(deipi * i_f / w_f, 2) + pow(deipi * j_f / h_f, 2));
-                u(i + w / 2, j) =
-                        ( Vx(i + w / 2, j) +
-                         (Vy(i + w / 2, j))) /
-                        (pow(deipi * (i_f - w_f / 2) / w_f, 2) + pow(deipi * j_f / h_f, 2));
-                u(i, j + h / 2) =
-                        (Vx(i, j + h / 2) +
-                         (Vy(i, j + h / 2))) /
-                        (pow(deipi * i_f / w_f, 2) + pow(deipi * (j_f - h_f / 2) / h_f, 2));
-                u(i + w / 2, j + h / 2) = ( Vx(i + w / 2, j + h / 2) +
-                                           (Vy(i + w / 2, j + h / 2))) /
-                                          (pow(deipi * (i_f - w_f / 2) / w_f, 2) +
-                                           pow(deipi * (j_f - h_f / 2) / h_f, 2));
-            }
-        }
-    }*/
 
     ifft2(u.data(), u.width(), u.height());
 
-    return realImage(u.getSubImage(0,0,w,h));
+    return realImage(u.getSubImage(0, 0, w, h));
 }
